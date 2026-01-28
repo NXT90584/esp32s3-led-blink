@@ -1,0 +1,34 @@
+name: ESP32-S3 Blink Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Arduino CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+        sudo mv bin/arduino-cli /usr/local/bin/
+
+    - name: Install ESP32 core
+      run: |
+        arduino-cli config init
+        arduino-cli core update-index
+        arduino-cli core install esp32:esp32
+
+    - name: Compile ESP32-S3
+      run: |
+        arduino-cli compile \
+          --fqbn esp32:esp32:esp32s3 \
+          --output-dir build \
+          .
+
+    - name: Upload BIN
+      uses: actions/upload-artifact@v4
+      with:
+        name: esp32s3-bin
+        path: build
